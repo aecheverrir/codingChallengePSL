@@ -68,7 +68,6 @@ public class Main {
 				
 				
 				validInput = false;
-				String command = "";
 				while (!validInput) {
 					
 					String input = br.readLine();
@@ -77,8 +76,13 @@ public class Main {
 					
 					//checks if input is possible in the gameboard
 					if(validInput) {
-						command = input;
-						validInput = minefield.makeMove(numColumns-1, numRows-1, command);
+						
+						String[] inputValues = input.split(",");
+						int inputCol = Integer.parseInt(inputValues[0])-1;
+						int inputRow = Integer.parseInt(inputValues[1])-1;
+						String command = inputValues[2];
+						
+						validInput = minefield.makeMove(inputCol, inputRow, command);
 						if(!validInput) {
 							System.out.println("Please select a valid cell. They are represented with a '.' ");					
 						}

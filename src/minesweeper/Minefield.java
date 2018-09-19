@@ -1,5 +1,7 @@
 package minesweeper;
 
+import java.util.UnknownFormatConversionException;
+
 public class Minefield {
 
 
@@ -19,6 +21,8 @@ public class Minefield {
 	
 	private int mines;
 	
+	private int minesFlagged;
+	
 	
 	public Minefield(int pAmountOfColumns, int pAmountOfRows, int pAmountOfMines) {
 		
@@ -27,6 +31,7 @@ public class Minefield {
 		mines = pAmountOfMines;
 		gameboard = new Cell[rows][columns];
 		gamestate = GameState.INGAME;
+		minesFlagged = 0;
 		
 		setField();
 		placeMinesInField();
@@ -34,7 +39,7 @@ public class Minefield {
 		
 	}
 
-	private void setStates() {
+	public void setStates() {
 		
 		for( int i = 0; i < rows; i++ )
         {
@@ -45,10 +50,9 @@ public class Minefield {
             }
         }
 		
-		
 	}
 
-	private String getCellState(int pRow,int pCol) {
+	public String getCellState(int pRow,int pCol) {
 		
 		int amountMinesAround = 0;
 		Cell currentCell = gameboard[ pRow ][ pCol ] ;
@@ -161,12 +165,164 @@ public class Minefield {
 	}
 	
 	public boolean makeMove(int pColumn, int pRow, String pAction) {
-		
-		gamestate = GameState.WON;
+			
+		Cell currentCell = gameboard[pRow][pColumn];
+		if(!currentCell.isHidden()) {
+			return false;
+		}
+		//uncovers mine, looses
+		if(pAction.equals("U") && currentCell.isMined()) {
+			gamestate = GameState.LOST;
+			uncoverAllMines();
+		}
+		//Flags
+		//removes flag from a mined cell
+		else if(pAction.equals("P") && currentCell.isMined() && currentCell.isFlagged()) {
+			currentCell.setFlagged(false);
+			minesFlagged --;
+		}
+		//removes flag from a unmined cell
+		else if(pAction.equals("P") && !currentCell.isMined() && currentCell.isFlagged()) {
+			currentCell.setFlagged(false);
+			minesFlagged ++;
+		}
+		//places flag on an mined cell
+		else if(pAction.equals("P") && currentCell.isMined() && !currentCell.isFlagged()) {
+			currentCell.setFlagged(true);
+			minesFlagged ++;
+		}
+		//places flag on an unmined cell
+		else if(pAction.equals("P") && !currentCell.isMined() && !currentCell.isFlagged()) {
+			currentCell.setFlagged(true);
+			minesFlagged --;
+		}
+		//Uncovers number
+		else if(pAction.equals("U") && !currentCell.isMined() && !currentCell.isFlagged() && !currentCell.getState().equals("-")) {
+			currentCell.setHidden(false);
+		}
+		//Uncovers disabled/empty cell
+		else if(pAction.equals("U") && !currentCell.isMined() && !currentCell.isFlagged() && currentCell.getState().equals("-")) {
+			uncoverDisabledCell(currentCell);
+		}
+				
+		if(minesFlagged == mines) {
+			gamestate = GameState.WON;
+		}
 		return true;
 		
 	}
+	
+	private void uncoverDisabledCell(Cell currentCell) {
+		
+		currentCell.setHidden(false);
+		int pRow = currentCell.getRow();
+		int pCol = currentCell.getColumn();
 
+		//top left
+		if(pRow > 0 && pCol > 0 ) {
+			Cell checkCell = gameboard[ pRow-1 ][ pCol-1 ];
+			if(checkCell.getState().equals("-") && checkCell.isHidden() && !checkCell.isFlagged()) {
+				uncoverDisabledCell(checkCell);
+			}
+			else if(!checkCell.isFlagged()){
+				checkCell.setHidden(false);
+			}
+		}
+		
+		//top
+		if(pCol > 0) {
+			Cell checkCell = gameboard[ pRow ][ pCol-1 ];
+			if(checkCell.getState().equals("-") && checkCell.isHidden() && !checkCell.isFlagged()) {
+				uncoverDisabledCell(checkCell);
+			}
+			else if(!checkCell.isFlagged()){
+				checkCell.setHidden(false);
+			}
+		}
+		
+		//top right
+		if(pCol > 0 && pRow < rows-1 ) {
+			Cell checkCell = gameboard[ pRow+1 ][ pCol-1 ];
+			if(checkCell.getState().equals("-") && checkCell.isHidden() && !checkCell.isFlagged()) {
+				uncoverDisabledCell(checkCell);
+			}
+			else if(!checkCell.isFlagged()){
+				checkCell.setHidden(false);
+			}
+		}
+		
+		//left
+		if(pRow > 0) {
+			Cell checkCell = gameboard[ pRow-1 ][ pCol ];
+			if(checkCell.getState().equals("-") && checkCell.isHidden() && !checkCell.isFlagged()) {
+				uncoverDisabledCell(checkCell);
+			}
+			else if(!checkCell.isFlagged()){
+				checkCell.setHidden(false);
+			}
+		}
+		
+		//right
+		if(pRow < rows-1) {
+			Cell checkCell = gameboard[ pRow+1 ][ pCol ];
+			if(checkCell.getState().equals("-") && checkCell.isHidden() && !checkCell.isFlagged()) {
+				uncoverDisabledCell(checkCell);
+			}
+			else if(!checkCell.isFlagged()){
+				checkCell.setHidden(false);
+			}
+		}
+		
+		
+		//bottom left
+		if(pRow > 0 && pCol < columns-1) {
+			Cell checkCell = gameboard[ pRow-1 ][ pCol+1 ];
+			if(checkCell.getState().equals("-") && checkCell.isHidden() && !checkCell.isFlagged()) {
+				uncoverDisabledCell(checkCell);
+			}
+			else if(!checkCell.isFlagged()){
+				checkCell.setHidden(false);
+			}
+		}
+		
+		//bottom
+		if(pCol < columns-1) {
+			Cell checkCell = gameboard[ pRow ][ pCol+1 ];
+			if(checkCell.getState().equals("-") && checkCell.isHidden() && !checkCell.isFlagged()) {
+				uncoverDisabledCell(checkCell);
+			}
+			else if(!checkCell.isFlagged()){
+				checkCell.setHidden(false);
+			}
+		}
+		
+		//bottom right
+		if(pRow < rows-1 && pCol < columns-1) {
+			Cell checkCell = gameboard[ pRow+1 ][ pCol+1 ];
+			if(checkCell.getState().equals("-") && checkCell.isHidden() && !checkCell.isFlagged()) {
+				uncoverDisabledCell(checkCell);
+			}
+			else if(!checkCell.isFlagged()){
+				checkCell.setHidden(false);
+			}
+		}
+		
+	}
+
+	public void uncoverAllMines() {
+		
+		for( int i = 0; i < rows; i++ )
+        {
+            for( int j = 0; j < columns; j++ )
+            {
+            	if(gameboard[i][j].isMined()) {
+            		gameboard[ i ][ j ].setHidden(false);
+            	}
+                
+            }
+        }
+		
+	}
 
 	public void printboard() {
 		
