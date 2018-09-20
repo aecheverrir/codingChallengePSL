@@ -4,4 +4,5 @@ This proyect consists of creating a console version of the classic minesweeper g
 It is implemented in Java 8.
 
 Execution instructions:
-1. in your console open the main folder and run $ javac Main.java
+1. In your console open the main folder and run $ javac Main.java
+2. Then, run $ java Main
