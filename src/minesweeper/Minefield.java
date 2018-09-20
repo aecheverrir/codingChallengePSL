@@ -1,6 +1,7 @@
 package minesweeper;
 
-import java.util.UnknownFormatConversionException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Minefield {
 
@@ -213,49 +214,57 @@ public class Minefield {
 	}
 	
 	private void uncoverDisabledCell(int pRow, int pCol) {
-		if(pRow < 0 || pRow > rows-1 || pCol < 0 || pCol > columns-1) {
-			return;
-		}
-		Cell currentCell = gameboard[pRow][pCol];
-		if(!currentCell.isHidden()) {
-			return;
-		}
-		gameboard[pRow][pCol].setHidden(false);
-		if(currentCell.getState().equals("-") && !currentCell.isFlagged()) {
-			if(check(pRow-1, pCol-1) && gameboard[pRow-1][pCol-1].isHidden()) {
-				uncoverDisabledCell(pRow-1, pCol-1);
-			}
-		
-			if(check(pRow, pCol-1) && gameboard[pRow][pCol-1].isHidden()) {
-				uncoverDisabledCell(pRow, pCol-1);
-			}
-		
-			if(check(pRow+1, pCol-1) && gameboard[pRow+1][pCol-1].isHidden()) {
-				uncoverDisabledCell(pRow+1, pCol-1);
-			}
-		
-			if(check(pRow-1, pCol+1) && gameboard[pRow-1][pCol+1].isHidden()) {
-				uncoverDisabledCell(pRow-1, pCol+1);
-			}
-		
-			if(check(pRow, pCol+1) && gameboard[pRow][pCol+1].isHidden()) {
-				uncoverDisabledCell(pRow, pCol+1);
-			}
-		
-			if(check(pRow+1, pCol+1) && gameboard[pRow+1][pCol+1].isHidden()) {
-				uncoverDisabledCell(pRow+1, pCol+1);
-			}
-		
-			if(check(pRow+1, pCol) && gameboard[pRow+1][pCol].isHidden()) {
-				uncoverDisabledCell(pRow+1, pCol);
-			}
-		
-			if(check(pRow-1, pCol) && gameboard[pRow-1][pCol].isHidden()) {
-				uncoverDisabledCell(pRow-1, pCol);
-			}
-				
-		}
-	}
+        List<Cell> res = new ArrayList<Cell>();
+        Cell startCell = gameboard[pRow][pCol]; 
+        res.add(startCell);
+
+        while(res.size() > 0) {
+          int count = res.size();
+          Cell currentCell = res.get(count-1);
+          int row = currentCell.getRow();
+          int col = currentCell.getColumn();
+          res.remove(count-1);
+
+          if(!currentCell.isHidden()) {
+            continue;
+          }
+          currentCell.setHidden(false);
+
+          if(currentCell.getState().equals("-") && !currentCell.isFlagged()) {
+            if(check(row-1, col-1) && gameboard[row-1][col-1].isHidden()) {
+              res.add(gameboard[row-1][col-1]);
+            }
+
+            if(check(row, col-1) && gameboard[row][col-1].isHidden()) {
+              res.add(gameboard[row][col-1]);;
+            }
+
+            if(check(row+1, col-1) && gameboard[row+1][col-1].isHidden()) {
+              res.add(gameboard[row+1][col-1]);
+            }
+
+            if(check(row-1, col+1) && gameboard[row-1][col+1].isHidden()) {
+              res.add(gameboard[row-1][col+1]);
+            }
+
+            if(check(row, col+1) && gameboard[row][col+1].isHidden()) {
+              res.add(gameboard[row][col+1]);
+            }
+
+            if(check(row+1, col+1) && gameboard[row+1][col+1].isHidden()) {
+              res.add(gameboard[row+1][col+1]);
+            }
+
+            if(check(row+1, col) && gameboard[row+1][col].isHidden()) {
+              res.add(gameboard[row+1][col]);
+            }
+
+            if(check(row-1, col) && gameboard[row-1][col].isHidden()) {
+              res.add(gameboard[row-1][col]);
+            }
+          }
+        }
+    }
 	
 	public boolean check(int pRow, int pCol) {
 		return (pRow >= 0 && pRow < rows && pCol >= 0 && pCol < columns);
