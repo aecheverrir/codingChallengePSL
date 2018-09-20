@@ -3,6 +3,12 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 public class Main {
+	
+	public enum GameState{
+		WON,
+		LOST,
+		INGAME;	
+	}
 
 	public static void main(String[] args) throws IOException {
 		
